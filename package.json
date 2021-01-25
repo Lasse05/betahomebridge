@@ -1,13 +1,12 @@
 {
-  "private": true,
-  "displayName": "Beta42",
+  "displayName": "homebridge-beta42",
   "name": "homebridge-beta42",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "description": "A short description about what your plugin does.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git://github.com/Lasse05/betasmarthome.git"
+    "url": "git://github.com/Lasse05/homebridge-beta42.git"
   },
   "bugs": {
     "url": "https://github.com/Lasse05/betasmarthome/issues"

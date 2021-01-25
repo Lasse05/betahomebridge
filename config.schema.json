@@ -1,15 +1,21 @@
 {
-  "pluginAlias": "Beta42",
+  "pluginAlias": "homebridge-beta42",
   "pluginType": "platform",
   "singular": true,
   "schema": {
     "type": "object",
     "properties": {
-      "name": {
-        "title": "Name",
+      "ip": {
+        "title": "IP",
         "type": "string",
         "required": true,
-        "default": "Example Dynamic Platform"
+        "default": "Beta42 Bridge"
+      },
+      "password": {
+        "title": "password",
+        "type": "string",
+        "required": true,
+        "default": "Admin password"
       }
     }
   }
