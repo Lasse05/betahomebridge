@@ -1,4 +1,6 @@
-import { Service, PlatformAccessory, CharacteristicValue, CharacteristicSetCallback, CharacteristicGetCallback } from 'homebridge';
+import { Service, PlatformAccessory, PlatformConfig, CharacteristicValue, CharacteristicSetCallback, CharacteristicGetCallback } from 'homebridge';
+import { connect } from 'mqtt';
+const { Client } = require('@jdiamond/mqtt');
 
 import { ExampleHomebridgePlatform } from './platform';
 
@@ -15,40 +17,61 @@ export class ExamplePlatformAccessory {
    * You should implement your own code to track the state of your accessory
    */
   private exampleStates = {
-    On: false,
-    Brightness: 100,
+    On: false
   };
 
   constructor(
     private readonly platform: ExampleHomebridgePlatform,
     private readonly accessory: PlatformAccessory,
+    public ip: string,
+    public password: string,
+    public raum: string,
+    public person : string
   ) {
-
+    const client = new Client({
+      url: 'mqtt://' + this.ip,
+      username: 'admin',
+      password: this.password
+    });
+  
+    client.connect();
+  
+    client.on('message', (topic, payload) => {
+      var message =  payload.toString('utf-8');
+      if(topic == 'home/' + this.raum + '/' + this.person){
+        if(message == "false"){
+          this.service.updateCharacteristic(this.platform.Characteristic.MotionDetected, false);
+        }else {
+          this.service.updateCharacteristic(this.platform.Characteristic.MotionDetected, true);
+        }
+      }
+    });
+  
+    client.subscribe('home/' + this.raum + '/' + this.person);
     // set accessory information
     this.accessory.getService(this.platform.Service.AccessoryInformation)!
       .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Default-Manufacturer')
       .setCharacteristic(this.platform.Characteristic.Model, 'Default-Model')
       .setCharacteristic(this.platform.Characteristic.SerialNumber, 'Default-Serial');
-
     // get the LightBulb service if it exists, otherwise create a new LightBulb service
     // you can create multiple services for each accessory
-    this.service = this.accessory.getService(this.platform.Service.Lightbulb) || this.accessory.addService(this.platform.Service.Lightbulb);
+    this.service = this.accessory.getService(this.platform.Service.MotionSensor) || this.accessory.addService(this.platform.Service.MotionSensor);
 
-    // set the service name, this is what is displayed as the default name on the Home app
+   // set the service name, this is what is displayed as the default name on the Home app
     // in this example we are using the name we stored in the `accessory.context` in the `discoverDevices` method.
     this.service.setCharacteristic(this.platform.Characteristic.Name, accessory.context.device.exampleDisplayName);
 
-    // each service must implement at-minimum the "required characteristics" for the given service type
+      // each service must implement at-minimum the "required characteristics" for the given service type
     // see https://developers.homebridge.io/#/service/Lightbulb
 
     // register handlers for the On/Off Characteristic
-    this.service.getCharacteristic(this.platform.Characteristic.On)
-      .on('set', this.setOn.bind(this))                // SET - bind to the `setOn` method below
-      .on('get', this.getOn.bind(this));               // GET - bind to the `getOn` method below
+    this.service.getCharacteristic(this.platform.Characteristic.MotionDetected)
+                   // SET - bind to the `setOn` method below
+      .on('get', this.handleMotionDetectedGet.bind(this));       // GET - bind to the `getOn` method below
 
     // register handlers for the Brightness Characteristic
-    this.service.getCharacteristic(this.platform.Characteristic.Brightness)
-      .on('set', this.setBrightness.bind(this));       // SET - bind to the 'setBrightness` method below
+   // this.service.getCharacteristic(this.platform.Characteristic.Brightness)
+   //   .on('set', this.setBrightness.bind(this));       // SET - bind to the 'setBrightness` method below
 
 
     /**
@@ -63,11 +86,6 @@ export class ExamplePlatformAccessory {
      */
 
     // Example: add two "motion sensor" services to the accessory
-    const motionSensorOneService = this.accessory.getService('Motion Sensor One Name') ||
-      this.accessory.addService(this.platform.Service.MotionSensor, 'Motion Sensor One Name', 'YourUniqueIdentifier-1');
-
-    const motionSensorTwoService = this.accessory.getService('Motion Sensor Two Name') ||
-      this.accessory.addService(this.platform.Service.MotionSensor, 'Motion Sensor Two Name', 'YourUniqueIdentifier-2');
 
     /**
      * Updating characteristics values asynchronously.
@@ -79,7 +97,7 @@ export class ExamplePlatformAccessory {
      * 
      */
     let motionDetected = false;
-    setInterval(() => {
+    /*setInterval(() => {
       // EXAMPLE - inverse the trigger
       motionDetected = !motionDetected;
 
@@ -89,22 +107,16 @@ export class ExamplePlatformAccessory {
 
       this.platform.log.debug('Triggering motionSensorOneService:', motionDetected);
       this.platform.log.debug('Triggering motionSensorTwoService:', !motionDetected);
-    }, 10000);
+    }, 10000);*/
   }
 
-  /**
-   * Handle "SET" requests from HomeKit
-   * These are sent when the user changes the state of an accessory, for example, turning on a Light bulb.
-   */
-  setOn(value: CharacteristicValue, callback: CharacteristicSetCallback) {
+  handleMotionDetectedGet(callback) {
+    console.log('Triggered GET MotionDetected');
 
-    // implement your own code to turn your device on/off
-    this.exampleStates.On = value as boolean;
+    // set this to a valid value for MotionDetected
+    const currentValue = 1;
 
-    this.platform.log.debug('Set Characteristic On ->', value);
-
-    // you must call the callback function
-    callback(null);
+    callback(null, currentValue);
   }
 
   /**
@@ -123,6 +135,7 @@ export class ExamplePlatformAccessory {
   getOn(callback: CharacteristicGetCallback) {
 
     // implement your own code to check if the device is on
+    var value = 0;
     const isOn = this.exampleStates.On;
 
     this.platform.log.debug('Get Characteristic On ->', isOn);
@@ -130,22 +143,22 @@ export class ExamplePlatformAccessory {
     // you must call the callback function
     // the first argument should be null if there were no errors
     // the second argument should be the value to return
-    callback(null, isOn);
+    callback(null, value);
   }
 
   /**
    * Handle "SET" requests from HomeKit
    * These are sent when the user changes the state of an accessory, for example, changing the Brightness
    */
-  setBrightness(value: CharacteristicValue, callback: CharacteristicSetCallback) {
+  /*setBrightness(value: CharacteristicValue, callback: CharacteristicSetCallback) {
 
     // implement your own code to set the brightness
-    this.exampleStates.Brightness = value as number;
+    this.exampleStates.Brightness = value as number;8
 
     this.platform.log.debug('Set Characteristic Brightness -> ', value);
 
     // you must call the callback function
     callback(null);
-  }
+  }*/
 
 }
