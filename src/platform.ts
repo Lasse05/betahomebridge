@@ -3,7 +3,7 @@ import { API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, 
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
 import { ExamplePlatformAccessory } from './platformAccessory';
 import { resolve4 } from 'dns';
-const request = require('request');
+var request = require('request');
 /**
  * HomebridgePlatform
  * This class is the main constructor for your plugin, this is where you should
@@ -50,24 +50,23 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
    * must not be registered again t3o prevent "duplicate UUID" errors.
    */
   getdevices = new Promise<any>((resolve, reject) => {
-    const to_return:object[] = [];
+    var to_return:object[]  = [];
     request.post({
       headers: {'content-type' : 'application/x-www-form-urlencoded'},
-      url:     'http://' + this.config.ip + ':3000/api/discoverhomebridge',
-      body:    'username=' + this.config.username+ '&password=' + this.config.passowrd,
-    }, (error, response, body)=> {
-      var body = JSON.parse(body);
-      body.forEach(element => {
-        console.log(element);
-        Object.entries(element).forEach(([key, value]) => {
-          const tmp = {exampleUniqueId: key + value, exampleDisplayName: key + value, raum: key, person: value};
-          to_return.push(tmp);
-        });
+         url:     'http://' + this.config.ip + ':3000/api/discoverhomebridge',
+         body:    "username=" + this.config.username+ "&password=" + this.config.passowrd,
+      }, function(error, response, body){
+          var body = JSON.parse(body);
+          body.forEach(element => {
+            console.log(element);
+            Object.entries(element).forEach(([key, value]) => {
+              var tmp = {exampleUniqueId: key + value ,exampleDisplayName: key + value, raum: key , person: value};
+              to_return.push(tmp);
+            });
+          });
+          resolve(to_return);
       });
-      resolve(to_return);
-    });
   });
-
   discoverDevices() {
     this.getdevices.then(exampleDevices => {
       for (const device of exampleDevices) {
@@ -92,7 +91,7 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
   
             // create the accessory handler for the restored accessory
             // this is imported from `platformAccessory.ts`
-            new ExamplePlatformAccessory(this, existingAccessory, this.config.ip, this.config.password, device.raum, device.person, this.config.username);
+            new ExamplePlatformAccessory(this, existingAccessory, this.config.ip, this.config.password , device.raum , device.person, this.config.username);
             
             // update accessory cache with any changes to the accessory details and information
             this.api.updatePlatformAccessories([existingAccessory]);
@@ -115,7 +114,7 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
   
           // create the accessory handler for the newly create accessory
           // this is imported from `platformAccessory.ts`
-          new ExamplePlatformAccessory(this, accessory, this.config.ip, this.config.password, device.raum, device.person, this.config.username);
+          new ExamplePlatformAccessory(this, accessory, this.config.ip, this.config.password , device.raum , device.person, this.config.username);
   
           // link the accessory to your platform
           this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);

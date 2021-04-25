@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ExampleHomebridgePlatform = void 0;
 const settings_1 = require("./settings");
 const platformAccessory_1 = require("./platformAccessory");
-const request = require('request');
+var request = require('request');
 /**
  * HomebridgePlatform
  * This class is the main constructor for your plugin, this is where you should
