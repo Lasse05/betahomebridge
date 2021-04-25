@@ -8,13 +8,14 @@ const { Client } = require('@jdiamond/mqtt');
  * Each accessory may expose multiple services of different service types.
  */
 class ExamplePlatformAccessory {
-    constructor(platform, accessory, ip, password, raum, person) {
+    constructor(platform, accessory, ip, password, raum, person, username) {
         this.platform = platform;
         this.accessory = accessory;
         this.ip = ip;
         this.password = password;
         this.raum = raum;
         this.person = person;
+        this.username = username;
         /**
          * These are just used to create a working example
          * You should implement your own code to track the state of your accessory
@@ -24,7 +25,7 @@ class ExamplePlatformAccessory {
         };
         const client = new Client({
             url: 'mqtt://' + this.ip,
-            username: 'admin',
+            username: this.username,
             password: this.password
         });
         client.connect();

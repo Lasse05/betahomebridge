@@ -12,13 +12,14 @@ export declare class ExamplePlatformAccessory {
     password: string;
     raum: string;
     person: string;
+    username: string;
     private service;
     /**
      * These are just used to create a working example
      * You should implement your own code to track the state of your accessory
      */
     private exampleStates;
-    constructor(platform: ExampleHomebridgePlatform, accessory: PlatformAccessory, ip: string, password: string, raum: string, person: string);
+    constructor(platform: ExampleHomebridgePlatform, accessory: PlatformAccessory, ip: string, password: string, raum: string, person: string, username: string);
     handleMotionDetectedGet(callback: any): void;
     /**
      * Handle the "GET" requests from HomeKit
