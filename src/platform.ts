@@ -114,7 +114,7 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
   
           // create the accessory handler for the newly create accessory
           // this is imported from `platformAccessory.ts`
-          new ExamplePlatformAccessory(this, accessory, this.config.ip, this.config.password , device.raum , device.person);
+          new ExamplePlatformAccessory(this, accessory, this.config.ip, this.config.password , device.raum , device.person, this.config.username);
   
           // link the accessory to your platform
           this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
