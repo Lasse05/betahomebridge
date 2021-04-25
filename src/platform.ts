@@ -51,10 +51,10 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
    */
   getdevices = new Promise<any>((resolve, reject) => {
     var to_return:object[]  = [];
-    request.get({
-      headers: {'content-type' : 'application/json'},
+    request.post({
+      headers: {'content-type' : 'application/x-www-form-urlencoded'},
          url:     'http://' + this.config.ip + ':3000/api/discoverhomebridge',
-         body:    ""
+         body:    "username=" + this.config.username+ "&password=" + this.config.passowrd,
       }, function(error, response, body){
           var body = JSON.parse(body);
           body.forEach(element => {
@@ -91,7 +91,7 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
   
             // create the accessory handler for the restored accessory
             // this is imported from `platformAccessory.ts`
-            new ExamplePlatformAccessory(this, existingAccessory, this.config.ip, this.config.password , device.raum , device.person);
+            new ExamplePlatformAccessory(this, existingAccessory, this.config.ip, this.config.password , device.raum , device.person, this.config.username);
             
             // update accessory cache with any changes to the accessory details and information
             this.api.updatePlatformAccessories([existingAccessory]);

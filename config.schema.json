@@ -11,11 +11,17 @@
         "required": true,
         "default": "Beta42 Bridge"
       },
+      "Username": {
+        "title": "username",
+        "type": "string",
+        "required": true,
+        "default": "Username"
+      },
       "password": {
         "title": "password",
         "type": "string",
         "required": true,
-        "default": "Admin password"
+        "default": "Password"
       }
     }
   }

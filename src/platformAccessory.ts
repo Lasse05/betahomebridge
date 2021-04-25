@@ -26,11 +26,12 @@ export class ExamplePlatformAccessory {
     public ip: string,
     public password: string,
     public raum: string,
-    public person : string
+    public person : string,
+    public username: string
   ) {
     const client = new Client({
       url: 'mqtt://' + this.ip,
-      username: 'admin',
+      username: this.username,
       password: this.password
     });
   
